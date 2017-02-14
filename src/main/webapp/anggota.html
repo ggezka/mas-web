@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="lib/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="lib/bootstrap-theme.min.css">
+<link rel="stylesheet" href="lib/docs.min.css">
+<link rel="stylesheet" href="lib/select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="lib/jquery.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+
+<script src="lib/angular.min.js"></script>
+
+<script src="lib/select.min.js"></script>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+					aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Peminjaman Buku</a>
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse"
+				id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="buku.html">Buku</a></li>
+					<li class="active"><a href="#">Anggota <span
+							class="sr-only">(current)</span></a></li>
+					<li><a href="/">Web API</a></li>
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container-fluid -->
+	</nav>
+	<div class="container bs-docs-container">
+		<div class="row">
+			<div class="bs-docs-section">
+				<div class="bs-example" data-example-id="stacked-progress-bar">
+					<div class="progress" style="height: 5px;">
+						<div class="progress-bar progress-bar-success" style="width: 25%">
+							<span class="sr-only">35% Complete (success)</span>
+						</div>
+						<div
+							class="progress-bar progress-bar-warning progress-bar-striped"
+							style="width: 25%">
+							<span class="sr-only">20% Complete (warning)</span>
+						</div>
+						<div class="progress-bar progress-bar-danger" style="width: 25%">
+							<span class="sr-only">10% Complete (danger)</span>
+						</div>
+						<div class="progress-bar progress-bar-striped active"
+							style="width: 25%">
+							<span class="sr-only">10% Complete (danger)</span>
+						</div>
+					</div>
+				</div>
+				<div class="zero-clipboard">
+					<span class="btn-clipboard">Anggota</span>
+				</div>
+				<figure class="highlight">
+
+					<div ng-app="myApp" ng-controller="myCtrl">
+
+						<form ng-submit="save(anggota)">
+							<div class="form-group">
+								<label for="email">Nama</label> <input type="hidden"
+									class="form-control" ng-model="anggota.id"> <input
+									type="text" class="form-control" ng-model="anggota.nama">
+							</div>
+							<div class="form-group">
+								<label for="email">Judul Buku</label>
+								<ui-select ng-model="anggota.buku"> <ui-select-match
+									placeholder="Pilih Buku"> {{
+								$select.selected.judul }} </ui-select-match> <ui-select-choices
+									repeat="c in buku" refresh="getBuku()">
+								<div ng-bind="c.judul"></div>
+								</ui-select-choices> </ui-select>
+							</div>
+							<div class="form-group">
+								<label for="pwd">Alamat</label> <textarea class="form-control" rows="3" ng-model="anggota.alamat"></textarea>
+							</div>
+							<div class="form-group">
+								<label for="pwd">No telpon</label> <input type="tel" maxlength=13"
+									class="form-control" ng-model="anggota.noTelpon">
+							</div>
+
+
+							<button type="submit" class="btn btn-primary">Simpan</button>
+							<button type="reset" class="btn btn-danger">Hapus</button>
+						</form>
+
+						<br>
+						<table class="table table-striped">
+							<tr>
+								<td>Id</td>
+								<td>Nama</td>
+								<td>Judul Buku</td>
+								<td>Alamat</td>
+								<td>No Telpon</td>
+								<td>Action</td>
+							</tr>
+							<tr ng-repeat="n in data">
+								<td>{{n.id}}</td>
+								<td>{{n.nama}}</td>
+								<td>{{n.buku.judul}}</td>
+								<td>{{n.alamat}}</td>
+								<td>{{n.noTelpon}}</td>
+								<td>
+									<button ng-click="update(n);" class="btn btn-info btn-xs">
+										<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+									</button>
+									<button ng-click="delete(n);" class="btn btn-danger btn-xs">
+										<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									</button>
+								</td>
+							</tr>
+						</table>
+						</form>
+					</div>
+				</figure>
+			</div>
+		</div>
+	</div>
+
+
+
+	<script>
+			var app = angular.module('myApp', ['ui.select']);
+				app.controller('myCtrl', function($scope, $http) {
+				
+				$scope.update = function(anggota){
+					$scope.anggota = anggota;
+					$scope.getData();
+				};
+				
+				$scope.delete = function(anggota){
+					$http.delete("http://localhost:8080/api/anggota/" + anggota.id)
+						.then(function(response) {
+							$scope.status = response.status;
+							$scope.getData();
+					});
+				};
+				
+				$scope.save = function(anggota){
+					if(anggota.id){
+						$http.put("http://localhost:8080/api/anggota/" + anggota.id, anggota)
+							.then(function(response) {
+								$scope.status = response.status;
+								$scope.getData();
+						});
+					}else{
+						
+						$http.post("http://localhost:8080/api/anggota", anggota)
+							.then(function(response) {
+								$scope.status = response.status;
+								$scope.getData();
+						});
+					}
+					$scope.anggota = null;
+				};
+				$scope.getData = function(){
+					$http.get("http://localhost:8080/api/anggota")
+						.then(function(response) {
+							$scope.data = response.data;
+							$scope.status = response.status;
+					});
+				};
+				
+				$scope.getBuku = function(){
+					$http.get("http://localhost:8080/api/buku")
+						.then(function(response) {
+							$scope.buku = response.data;
+					});
+				};
+				
+				$scope.getData();
+			});
+		</script>
+</body>
+</html>
+
